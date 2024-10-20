@@ -24,6 +24,8 @@ game_started= False #Track when the snake start moving
 def countdown(n):
     global running
     running=False
+    global countfood
+    countfood=0
     #global game_started
     #game_started=False
     global paused
@@ -87,11 +89,14 @@ def move_snake():
         countdown(3) #start the countdown
         
         
+        
         reset()  # Restart the game
         return
         
     else:
         snake.append(new_head)
+        
+        
 
         if not food_collision():
             snake.pop(0)  # Remove tail if not eating
@@ -120,6 +125,9 @@ def move_snake():
 def food_collision():
     global food_position
     if get_distance(snake[-1], food_position) < food_size:
+        global countfood
+        countfood=countfood+1
+        print(countfood)
         food_position = get_random_food_position()
         food.goto(food_position)
         return True
