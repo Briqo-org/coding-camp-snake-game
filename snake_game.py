@@ -296,9 +296,13 @@ food.penup()
 # Setup keyboard controls
 screen.listen()
 screen.onkey(go_up, "Up")
+screen.onkey(go_up, "w")
 screen.onkey(go_right, "Right")
+screen.onkey(go_right, "d")
 screen.onkey(go_down, "Down")
+screen.onkey(go_down, "s")
 screen.onkey(go_left, "Left")
+screen.onkey(go_left, "a")
 screen.onkey(toggle_pause, "p")  # Keep the pause control as is
 screen.onkey(lambda: countdown(3), "r")  # Change the restart key to 'r'
 
