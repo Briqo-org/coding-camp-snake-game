@@ -7,6 +7,7 @@ w = 500           # Screen width
 h = 500           # Screen height
 food_size = 10    # Size of the food
 delay = 100       # Delay in milliseconds between movements (controls speed)
+running = True  # Flag to indicate if the game is running
 
 # Movement offsets for the snake based on direction
 offsets = {
@@ -43,14 +44,15 @@ def reset():
     Resets the game by initializing the snake, setting its direction to 'up', 
     placing food in a random position, and starting the snake's movement.
     """
-    #time.sleep(3)
-    #restart the count every time restart
-    global snake, snake_dir, food_position, pen
+    global snake, snake_dir, food_position, pen, running
     # Initial snake body coordinates
     snake = [[0, 0], [0, 20], [0, 40], [0, 60], [0, 80]]
     snake_dir = "up"  # Start moving upwards
     food_position = get_random_food_position()  # Get new random position for the food
     food.goto(food_position)  # Move the food to its new position
+
+    running = True  # After resetting, allow the game to continue
+
     move_snake()  # Start snake movement
     #restart each time with a count down
     
@@ -62,16 +64,9 @@ def move_snake():
     position is updated, collisions are checked (with itself or food), 
     and the game continues unless paused.
     """
-    global snake_dir, paused
+    global snake_dir, paused, running
 
-    #condition for start the game  when the count down is 0
-
-    if not game_started:  # Prevent movement until the game starts
-        turtle.ontimer(move_snake, delay)
-        return
-
-    if paused:  # Skip movement if the game is paused
-        turtle.ontimer(move_snake, delay)
+    if not running:  # Stop movement if the game is resetting
         return
 
     if paused:  # Skip movement if the game is paused
@@ -89,7 +84,9 @@ def move_snake():
          
         countdown(3) #start the countdown
         
+        running = False  # Stop the game loop
         reset()  # Restart the game
+        return
         
     else:
         snake.append(new_head)  # Add the new head position to the snake
