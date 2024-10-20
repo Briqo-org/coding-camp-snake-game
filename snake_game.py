@@ -7,6 +7,7 @@ h = 500           # Screen height
 food_size = 20    # Size of the food
 delay = 100       # Delay in milliseconds between movements (controls speed)
 running = True  # Flag to indicate if the game is running
+score = 0       # Initialize score
 
 # Movement offsets for the snake based on direction
 offsets = {
@@ -23,13 +24,13 @@ def reset():
     Resets the game by initializing the snake, setting its direction to 'up', 
     placing food in a random position, and starting the snake's movement.
     """
-    global snake, snake_dir, food_position, pen, running
+    global snake, snake_dir, food_position, pen, running, score
     # Initial snake body coordinates
     snake = [[0, 0], [0, 20], [0, 40], [0, 60], [0, 80]]
     snake_dir = "up"  # Start moving upwards
     food_position = get_random_food_position()  # Get new random position for the food
     food.goto(food_position)  # Move the food to its new position
-
+    score = 0  # Reset score when the game is reset
     running = True  # After resetting, allow the game to continue
 
     move_snake()  # Start snake movement
@@ -86,10 +87,11 @@ def move_snake():
     turtle.ontimer(move_snake, delay)
 
 def food_collision():
-    global food_position
+    global food_position, score
     if get_distance(snake[-1], food_position) < food_size:
         food_position = get_random_food_position()
         food.goto(food_position)
+        score += 1  # Increment the score when food is eaten
         return True
     return False
 
