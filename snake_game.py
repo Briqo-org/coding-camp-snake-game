@@ -1,5 +1,6 @@
 import turtle
 import random
+import time
 
 # Game settings
 w = 500           # Screen width
@@ -17,7 +18,29 @@ offsets = {
     "right": (20, 0)
 }
 
-paused = False  # Track if the game is paused
+paused = True  # Track if the game is paused
+game_started= False #Track when the snake start moving
+#funtion to count down each time the game stars 
+
+def countdown(n):
+    global running
+    running=False
+    #global game_started
+    #game_started=False
+    global paused
+    paused=True
+    pen.clear()
+    pen.goto(0, 0)
+    pen.write(str(n), align="center", font=("Arial", 48, "normal"))
+    if n > 0:
+         
+        screen.ontimer(lambda: countdown(n - 1), 1000)
+    else:
+        pen.clear()
+        paused=False
+        #game_started = True  # Set game started to True
+        
+        reset()  # Start the game after countdown
 
 def reset():
     """
@@ -34,6 +57,9 @@ def reset():
     running = True  # After resetting, allow the game to continue
 
     move_snake()  # Start snake movement
+    #restart each time with a count down
+    
+    #end 
 
 def move_snake():
     """
@@ -49,6 +75,7 @@ def move_snake():
     if paused:
         turtle.ontimer(move_snake, delay)
         return
+    #end of the condition 
 
     # Calculate new head position
     new_head = snake[-1].copy()
@@ -56,9 +83,14 @@ def move_snake():
     new_head[1] += offsets[snake_dir][1]
 
     if new_head in snake[:-1]:  # If the snake collides with itself
+        
         running = False  # Stop the game loop
+        countdown(3) #start the countdown
+        
+        
         reset()  # Restart the game
         return
+        
     else:
         snake.append(new_head)
 
@@ -177,6 +209,7 @@ screen.onkey(toggle_pause, "p")
 draw_border()
 
 # Start the game
-reset()
-turtle.done()
 
+countdown(3)
+reset()  # Initialize the game state
+turtle.done()  # Keep the window open
