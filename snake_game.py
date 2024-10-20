@@ -6,6 +6,7 @@ w = 500           # Screen width
 h = 500           # Screen height
 food_size = 20    # Size of the food
 delay = 100       # Delay in milliseconds between movements (controls speed)
+running = True  # Flag to indicate if the game is running
 
 # Movement offsets for the snake based on direction
 offsets = {
@@ -18,15 +19,31 @@ offsets = {
 paused = False  # Track if the game is paused
 
 def reset():
-    global snake, snake_dir, food_position
+    """
+    Resets the game by initializing the snake, setting its direction to 'up', 
+    placing food in a random position, and starting the snake's movement.
+    """
+    global snake, snake_dir, food_position, pen, running
+    # Initial snake body coordinates
     snake = [[0, 0], [0, 20], [0, 40], [0, 60], [0, 80]]
-    snake_dir = "up"
-    food_position = get_random_food_position()
-    food.goto(food_position)
-    move_snake()
+    snake_dir = "up"  # Start moving upwards
+    food_position = get_random_food_position()  # Get new random position for the food
+    food.goto(food_position)  # Move the food to its new position
+
+    running = True  # After resetting, allow the game to continue
+
+    move_snake()  # Start snake movement
 
 def move_snake():
-    global snake_dir, paused
+    """
+    Handles the movement of the snake based on its direction. The snake's 
+    position is updated, collisions are checked (with itself or food), 
+    and the game continues unless paused.
+    """
+    global snake_dir, paused, running
+
+    if not running:  # Stop movement if the game is resetting
+        return
 
     if paused:
         turtle.ontimer(move_snake, delay)
@@ -37,8 +54,10 @@ def move_snake():
     new_head[0] += offsets[snake_dir][0]
     new_head[1] += offsets[snake_dir][1]
 
-    if new_head in snake[:-1]:  # Collision with self
-        reset()
+    if new_head in snake[:-1]:  # If the snake collides with itself
+        running = False  # Stop the game loop
+        reset()  # Restart the game
+        return
     else:
         snake.append(new_head)
 
@@ -106,6 +125,26 @@ def toggle_pause():
     global paused
     paused = not paused
 
+def draw_border():
+    """
+    Draws a black border around the screen to represent the boundaries
+    where the snake wraps around.
+    """
+    border_pen = turtle.Turtle()  # Create a new turtle for drawing the border
+    border_pen.hideturtle()  # Hide the turtle (we just want the drawing)
+    border_pen.penup()
+    border_pen.goto(-w / 2, h / 2)  # Go to the top-left corner of the screen
+    border_pen.pendown()
+    border_pen.pensize(3)  # Set the thickness of the border
+    border_pen.color("black")  # Set the color to black
+
+    # Draw the rectangular border
+    for _ in range(2):
+        border_pen.forward(w)  # Move right
+        border_pen.right(90)
+        border_pen.forward(h)  # Move down
+        border_pen.right(90)
+
 # Setup the screen
 screen = turtle.Screen()
 screen.setup(w, h)
@@ -131,6 +170,9 @@ screen.onkey(go_right, "Right")
 screen.onkey(go_down, "Down")
 screen.onkey(go_left, "Left")
 screen.onkey(toggle_pause, "p")
+
+# Draw the border around the screen
+draw_border()
 
 # Start the game
 reset()
