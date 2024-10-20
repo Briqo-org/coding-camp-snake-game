@@ -149,7 +149,7 @@ def draw_border():
 screen = turtle.Screen()
 screen.setup(w, h)
 screen.title("Snake Gameeeeeeeeeeeeeeeee")
-screen.bgcolor("white")
+screen.bgcolor("lightblue")
 screen.tracer(0)
 
 # Setup the pen for drawing the snake
