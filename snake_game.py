@@ -1,5 +1,6 @@
 import turtle
 import random
+import time
 
 # Game settings
 w = 500           # Screen width
@@ -17,7 +18,29 @@ offsets = {
     "right": (20, 0)
 }
 
-paused = False  # Track if the game is paused
+paused = True  # Track if the game is paused
+game_started= False #Track when the snake start moving
+#funtion to count down each time the game stars 
+
+def countdown(n):
+    global running
+    running=False
+    #global game_started
+    #game_started=False
+    global paused
+    paused=True
+    pen.clear()
+    pen.goto(0, 0)
+    pen.write(str(n), align="center", font=("Arial", 48, "normal"))
+    if n > 0:
+         
+        screen.ontimer(lambda: countdown(n - 1), 1000)
+    else:
+        pen.clear()
+        paused=False
+        #game_started = True  # Set game started to True
+        
+        reset()  # Start the game after countdown
 
 def reset():
     """
@@ -32,8 +55,12 @@ def reset():
     food.goto(food_position)  # Move the food to its new position
     score = 0  # Reset score when the game is reset
     running = True  # After resetting, allow the game to continue
-
+    paused=False
+    
     move_snake()  # Start snake movement
+    #restart each time with a count down
+    
+    #end 
 
 def move_snake():
     """
@@ -49,6 +76,7 @@ def move_snake():
     if paused:
         turtle.ontimer(move_snake, delay)
         return
+    #end of the condition 
 
     # Calculate new head position
     new_head = snake[-1].copy()
@@ -56,9 +84,14 @@ def move_snake():
     new_head[1] += offsets[snake_dir][1]
 
     if new_head in snake[:-1]:  # If the snake collides with itself
+        
         running = False  # Stop the game loop
+        countdown(3) #start the countdown
+        
+        
         reset()  # Restart the game
         return
+        
     else:
         snake.append(new_head)
 
@@ -118,6 +151,93 @@ def go_down():
     if snake_dir != "up":
         snake_dir = "down"
 
+def game_over_screen():
+    """
+    Displays the Game Over screen with the final score before resetting the game.
+    """
+    pen.goto(0, 0)
+    pen.write("Game Over", align="center", font=("Arial", 48, "normal"))
+    pen.goto(0, -50)
+    pen.write(f"Score: {score}", align="center", font=("Arial", 24, "normal"))
+    pen.goto(0, -100)
+    pen.write("Press 'R' to Restart", align="center", font=("Arial", 24, "normal"))
+    
+    # Pause the game until the player presses 'p'
+    global paused
+    paused = True  # Pause the game
+
+def move_snake():
+    global snake_dir, paused, running
+
+    if not running:  # Stop movement if the game is resetting
+        return
+
+    if paused:
+        turtle.ontimer(move_snake, delay)
+        return
+
+    # Calculate new head position
+    new_head = snake[-1].copy()
+    new_head[0] += offsets[snake_dir][0]
+    new_head[1] += offsets[snake_dir][1]
+
+    if new_head in snake[:-1]:  # If the snake collides with itself
+        running = False  # Stop the game loop
+        game_over_screen()  # Show the game over screen
+        return
+        
+    else:
+        snake.append(new_head)
+
+        if not food_collision():
+            snake.pop(0)  # Remove tail if not eating
+
+        # Handle screen boundary wrapping
+        if snake[-1][0] > w / 2:
+            snake[-1][0] -= w
+        elif snake[-1][0] < -w / 2:
+            snake[-1][0] += w
+        elif snake[-1][1] > h / 2:
+            snake[-1][1] -= h
+        elif snake[-1][1] < -h / 2:
+            snake[-1][1] += h
+
+        pen.clearstamps()  # Clear previous stamps
+
+        # Draw the snake
+        for segment in snake:
+            pen.goto(segment[0], segment[1])
+            pen.stamp()
+
+        screen.update()  # Refresh the screen
+
+    turtle.ontimer(move_snake, delay)
+
+def reset():
+    """
+    Resets the game by initializing the snake, setting its direction to 'up', 
+    placing food in a random position, and starting the snake's movement.
+    """
+    global snake, snake_dir, food_position, pen, running, score
+    # Initial snake body coordinates
+    snake = [[0, 0], [0, 20], [0, 40], [0, 60], [0, 80]]
+    snake_dir = "up"  # Start moving upwards
+    food_position = get_random_food_position()  # Get new random position for the food
+    food.goto(food_position)  # Move the food to its new position
+    score = 0  # Reset score when the game is reset
+    running = True  # After resetting, allow the game to continue
+
+    pen.clear()  # Clear the game over message
+    move_snake()  # Start snake movement
+
+# Adjust the toggle_pause function to restart the game
+def toggle_pause():
+    global paused, running
+    if paused:
+        reset()  # Reset if the game was paused
+    else:
+        paused = not paused
+
 def go_left():
     global snake_dir
     if snake_dir != "right":
@@ -171,12 +291,14 @@ screen.onkey(go_up, "Up")
 screen.onkey(go_right, "Right")
 screen.onkey(go_down, "Down")
 screen.onkey(go_left, "Left")
-screen.onkey(toggle_pause, "p")
+screen.onkey(toggle_pause, "p")  # Keep the pause control as is
+screen.onkey(lambda: countdown(3), "r")  # Change the restart key to 'r'
 
 # Draw the border around the screen
 draw_border()
 
 # Start the game
-reset()
-turtle.done()
 
+countdown(4)
+reset()  # Initialize the game state
+turtle.done()  # Keep the window open
