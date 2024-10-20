@@ -133,6 +133,26 @@ def toggle_pause():
     global paused
     paused = not paused  # Toggle pause state
 
+def draw_border():
+    """
+    Draws a black border around the screen to represent the boundaries
+    where the snake wraps around.
+    """
+    border_pen = turtle.Turtle()  # Create a new turtle for drawing the border
+    border_pen.hideturtle()  # Hide the turtle (we just want the drawing)
+    border_pen.penup()
+    border_pen.goto(-w / 2, h / 2)  # Go to the top-left corner of the screen
+    border_pen.pendown()
+    border_pen.pensize(3)  # Set the thickness of the border
+    border_pen.color("black")  # Set the color to black
+
+    # Draw the rectangular border
+    for _ in range(2):
+        border_pen.forward(w)  # Move right
+        border_pen.right(90)
+        border_pen.forward(h)  # Move down
+        border_pen.right(90)
+
 # Setup the screen
 screen = turtle.Screen()
 screen.setup(w, h)           # Set the screen width and height
@@ -158,6 +178,9 @@ screen.onkey(go_right, "Right")
 screen.onkey(go_down, "Down")
 screen.onkey(go_left, "Left")
 screen.onkey(toggle_pause, "p")
+
+# Draw the border around the screen
+draw_border()
 
 # Start the game
 reset()  # Initialize the game state
