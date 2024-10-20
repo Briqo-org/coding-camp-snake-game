@@ -16,12 +16,27 @@ offsets = {
 }
 
 paused = False  # Track if the game is paused
+game_started= False #Track when the snake start moving
+#funtion to count down each time the game stars 
+def countdown(n):
+    
+    pen.clear()
+    pen.goto(0, 0)
+    pen.write(str(n), align="center", font=("Arial", 48, "normal"))
+    if n > 0:
+        screen.ontimer(lambda: countdown(n - 1), 1000)
+    else:
+        global game_started
+        game_started = True  # Set game started to True
+        #reset()  # Start the game after countdown
 
 def reset():
     """
     Resets the game by initializing the snake, setting its direction to 'up', 
     placing food in a random position, and starting the snake's movement.
     """
+    
+    #restart the count every time restart
     global snake, snake_dir, food_position, pen
     # Initial snake body coordinates
     snake = [[0, 0], [0, 20], [0, 40], [0, 60], [0, 80]]
@@ -29,6 +44,9 @@ def reset():
     food_position = get_random_food_position()  # Get new random position for the food
     food.goto(food_position)  # Move the food to its new position
     move_snake()  # Start snake movement
+    #restart each time with a count down
+    
+    #end 
 
 def move_snake():
     """
@@ -38,9 +56,20 @@ def move_snake():
     """
     global snake_dir, paused
 
+    #condition for start the game  when the count down is 0
+
+    if not game_started:  # Prevent movement until the game starts
+        turtle.ontimer(move_snake, delay)
+        return
+
+    if paused:  # Skip movement if the game is paused
+        turtle.ontimer(move_snake, delay)
+        return
+
     if paused:  # Skip movement if the game is paused
         turtle.ontimer(move_snake, delay)  # Continue checking in intervals
         return
+    #end of the condition 
 
     # Calculate new head position
     new_head = snake[-1].copy()
@@ -48,7 +77,10 @@ def move_snake():
     new_head[1] = snake[-1][1] + offsets[snake_dir][1]
 
     if new_head in snake[:-1]:  # If the snake collides with itself
+                
+        countdown(3) #start the countdown
         reset()  # Restart the game
+        
     else:
         snake.append(new_head)  # Add the new head position to the snake
 
@@ -161,4 +193,5 @@ screen.onkey(toggle_pause, "p")
 
 # Start the game
 reset()  # Initialize the game state
+countdown(3)
 turtle.done()  # Keep the window open
