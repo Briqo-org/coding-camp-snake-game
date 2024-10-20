@@ -6,6 +6,7 @@ w = 500           # Screen width
 h = 500           # Screen height
 food_size = 10    # Size of the food
 delay = 100       # Delay in milliseconds between movements (controls speed)
+running = True  # Flag to indicate if the game is running
 
 # Movement offsets for the snake based on direction
 offsets = {
@@ -22,12 +23,15 @@ def reset():
     Resets the game by initializing the snake, setting its direction to 'up', 
     placing food in a random position, and starting the snake's movement.
     """
-    global snake, snake_dir, food_position, pen
+    global snake, snake_dir, food_position, pen, running
     # Initial snake body coordinates
     snake = [[0, 0], [0, 20], [0, 40], [0, 60], [0, 80]]
     snake_dir = "up"  # Start moving upwards
     food_position = get_random_food_position()  # Get new random position for the food
     food.goto(food_position)  # Move the food to its new position
+
+    running = True  # After resetting, allow the game to continue
+
     move_snake()  # Start snake movement
 
 def move_snake():
@@ -36,7 +40,10 @@ def move_snake():
     position is updated, collisions are checked (with itself or food), 
     and the game continues unless paused.
     """
-    global snake_dir, paused
+    global snake_dir, paused, running
+
+    if not running:  # Stop movement if the game is resetting
+        return
 
     if paused:  # Skip movement if the game is paused
         turtle.ontimer(move_snake, delay)  # Continue checking in intervals
@@ -48,7 +55,9 @@ def move_snake():
     new_head[1] = snake[-1][1] + offsets[snake_dir][1]
 
     if new_head in snake[:-1]:  # If the snake collides with itself
+        running = False  # Stop the game loop
         reset()  # Restart the game
+        return
     else:
         snake.append(new_head)  # Add the new head position to the snake
 
