@@ -5,7 +5,7 @@ import time
 # Game settings
 w = 500           # Screen width
 h = 500           # Screen height
-food_size = 10    # Size of the food
+food_size = 20    # Size of the food
 delay = 100       # Delay in milliseconds between movements (controls speed)
 running = True  # Flag to indicate if the game is running
 
@@ -71,15 +71,15 @@ def move_snake():
     if not running:  # Stop movement if the game is resetting
         return
 
-    if paused:  # Skip movement if the game is paused
-        turtle.ontimer(move_snake, delay)  # Continue checking in intervals
+    if paused:
+        turtle.ontimer(move_snake, delay)
         return
     #end of the condition 
 
     # Calculate new head position
     new_head = snake[-1].copy()
-    new_head[0] = snake[-1][0] + offsets[snake_dir][0]
-    new_head[1] = snake[-1][1] + offsets[snake_dir][1]
+    new_head[0] += offsets[snake_dir][0]
+    new_head[1] += offsets[snake_dir][1]
 
     if new_head in snake[:-1]:  # If the snake collides with itself
         
@@ -91,12 +91,12 @@ def move_snake():
         return
         
     else:
-        snake.append(new_head)  # Add the new head position to the snake
+        snake.append(new_head)
 
-        if not food_collision():  # If food isn't eaten
-            snake.pop(0)  # Remove the tail to keep the snake the same length
+        if not food_collision():
+            snake.pop(0)  # Remove tail if not eating
 
-        # Handle screen boundary wrapping (snake moves to opposite side)
+        # Handle screen boundary wrapping
         if snake[-1][0] > w / 2:
             snake[-1][0] -= w
         elif snake[-1][0] < -w / 2:
@@ -106,73 +106,56 @@ def move_snake():
         elif snake[-1][1] < -h / 2:
             snake[-1][1] += h
 
-        pen.clearstamps()  # Clear the previous snake stamps
+        pen.clearstamps()  # Clear previous stamps
 
-        # Draw the snake on the screen
+        # Draw the snake
         for segment in snake:
             pen.goto(segment[0], segment[1])
             pen.stamp()
 
-        screen.update()  # Refresh the screen to show updates
+        screen.update()  # Refresh the screen
 
-    # Continue to move the snake after the delay
     turtle.ontimer(move_snake, delay)
 
 def food_collision():
-    """
-    Checks if the snake's head has collided with the food. If so, the food 
-    is relocated and returns True. Otherwise, returns False.
-    """
     global food_position
-    if get_distance(snake[-1], food_position) < 20:  # Collision threshold
-        food_position = get_random_food_position()  # Get a new random position for food
-        food.goto(food_position)  # Move the food to the new position
+    if get_distance(snake[-1], food_position) < food_size:
+        food_position = get_random_food_position()
+        food.goto(food_position)
         return True
     return False
 
 def get_random_food_position():
-    """
-    Generates a random position for the food within the screen boundaries.
-    """
-    x = random.randint(int(-w / 2 + food_size), int(w / 2 - food_size))
-    y = random.randint(- int(h / 2 + food_size), int(h / 2 - food_size))
+    x = random.randint(-w//2 + food_size, w//2 - food_size)
+    y = random.randint(-h//2 + food_size, h//2 - food_size)
     return (x, y)
 
 def get_distance(pos1, pos2):
-    """
-    Returns the Euclidean distance between two points.
-    """
-    x1, y1 = pos1
-    x2, y2 = pos2
-    return ((y2 - y1) ** 2 + (x2 - x1) ** 2) ** 0.5
+    return ((pos2[0] - pos1[0]) ** 2 + (pos2[1] - pos1[1]) ** 2) ** 0.5
 
-# Direction controls for the snake
 def go_up():
     global snake_dir
-    if snake_dir != "down":  # Prevent reversing direction
+    if snake_dir != "down":
         snake_dir = "up"
 
 def go_right():
     global snake_dir
-    if snake_dir != "left":  # Prevent reversing direction
+    if snake_dir != "left":
         snake_dir = "right"
 
 def go_down():
     global snake_dir
-    if snake_dir != "up":  # Prevent reversing direction
+    if snake_dir != "up":
         snake_dir = "down"
 
 def go_left():
     global snake_dir
-    if snake_dir != "right":  # Prevent reversing direction
+    if snake_dir != "right":
         snake_dir = "left"
 
 def toggle_pause():
-    """
-    Pauses or unpauses the game.
-    """
     global paused
-    paused = not paused  # Toggle pause state
+    paused = not paused
 
 def draw_border():
     """
@@ -196,24 +179,24 @@ def draw_border():
 
 # Setup the screen
 screen = turtle.Screen()
-screen.setup(w, h)           # Set the screen width and height
-screen.title("Snake Game")    # Set the window title
-screen.bgcolor("blue")        # Set the background color
-screen.tracer(0)              # Disable automatic screen updates for smoother animation
+screen.setup(w, h)
+screen.title("Snake Gameeeeeeeeeeeeeeeee")
+screen.bgcolor("lightblue")
+screen.tracer(0)
 
 # Setup the pen for drawing the snake
 pen = turtle.Turtle("square")
-pen.penup()  # Disable drawing line
+pen.penup()
 
 # Setup the food turtle
 food = turtle.Turtle()
-food.shape("square")
-food.color("yellow")
-food.shapesize(food_size / 20)  # Set the food size relative to the default turtle size
-food.penup()  # Disable drawing line
+food.shape("circle")
+food.color("red")
+food.shapesize(food_size / 20)
+food.penup()
 
-# Setup keyboard controls for snake movement and pause
-screen.listen()  # Listen for key presses
+# Setup keyboard controls
+screen.listen()
 screen.onkey(go_up, "Up")
 screen.onkey(go_right, "Right")
 screen.onkey(go_down, "Down")
