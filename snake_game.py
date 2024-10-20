@@ -22,6 +22,7 @@ game_started= False #Track when the snake start moving
 #funtion to count down each time the game stars 
 
 def countdown(n):
+    
 
     global game_started
     game_started=False
@@ -31,12 +32,14 @@ def countdown(n):
     pen.goto(0, 0)
     pen.write(str(n), align="center", font=("Arial", 48, "normal"))
     if n > 0:
+        global running
+        running=False
         screen.ontimer(lambda: countdown(n - 1), 1000)
     else:
         pen.clear()
         pause=False
         game_started = True  # Set game started to True
-        
+        running=True
         #reset()  # Start the game after countdown
 
 def reset():
